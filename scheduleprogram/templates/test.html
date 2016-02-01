@@ -1,0 +1,9 @@
+{% block body %}
+<h1>Test Page</h1>
+{% for entry in output %}
+<li>{{ entry.username }}</li>
+<ul>
+    <li>{{ entry.project }}
+</ul>
+{% endfor %}
+{% endblock %}
