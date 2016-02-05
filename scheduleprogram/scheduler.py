@@ -4,6 +4,10 @@ from flask import Flask, render_template
 # configuration
 from flask.ext.sqlalchemy import SQLAlchemy
 
+from flask_wtf import Form
+from wtforms import StringField, DateField
+from wtforms.validators import DataRequired
+
 DATABASE = "database.db"
 DEBUG = True
 SECRET_KEY = 'development key'
@@ -17,6 +21,12 @@ app.config.from_object(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
+
+
+class CreateProject(Form):
+    name = StringField('Name of project:', validators=[DataRequired()])
+    startdate = DateField('Starting date:', validators=[DataRequired()], format='%m-%d-%Y')
+    enddate = DateField('Ending date:', validators=[DataRequired()], format='%m-%d-%Y')
 
 
 class Project(db.Model):
