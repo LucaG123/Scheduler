@@ -25,8 +25,8 @@ db = SQLAlchemy(app)
 
 class CreateProject(Form):
     name = StringField('Name of project:', validators=[DataRequired()])
-    startdate = DateField('Starting date:', validators=[DataRequired()], format='%m-%d-%Y')
-    enddate = DateField('Ending date:', validators=[DataRequired()], format='%m-%d-%Y')
+    startdate = DateField('Starting date:', validators=[DataRequired()], format='%Y-%m-%d')
+    enddate = DateField('Ending date:', validators=[DataRequired()], format='%Y-%m-%d')
 
 
 class Project(db.Model):
@@ -35,10 +35,10 @@ class Project(db.Model):
     project = db.Column(db.String(80), unique=True)
     startdate = db.Column(db.Date)
     enddate = db.Column(db.Date)
-    modules = db.relationship("Modules")
+    modules = db.relationship('Modules')
 
     def __init__(self, project, startdate, enddate):
-        #self.username = username
+        # sself.username = username
         self.project = project
         self.startdate = startdate
         self.enddate = enddate
@@ -65,10 +65,10 @@ class Tasks(db.Model):
 @app.route('/initdb')
 def page():
     db.create_all()
-    project = Project('testuser', 'test project')
-    db.session.add(project)
-    db.session.commit()
-    query = Project.query.order_by(Project.username)
+    # project = Project('test project', date(2015, 11, 15), date(2016, 11, 16))
+    # db.session.add(project)
+    # db.session.commit()
+    query = Project.query.order_by(Project.project)
     return render_template('test.html', output=query)
 
 
@@ -78,7 +78,7 @@ def homepage():
     return render_template('test.html', output=query)
 
 
-@app.route('/cproject')
+@app.route('/cproject', methods=['GET', 'POST'])
 def cproject():
     form = CreateProject()
     if form.validate_on_submit():

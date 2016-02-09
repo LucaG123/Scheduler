@@ -1,11 +1,16 @@
 {% extends "layout.html" %}
-
+<script>
+    $(function () {
+        $("#datepicker").datepicker();
+    });
+</script>
 {% block body %}
 <h1>Test Page</h1>
 {% for entry in output %}
-<li>{{ entry.username }}</li>
+    <li>{{ entry.project }}</li>
 <ul>
-    <li>{{ entry.project }}
+    <li>{{ entry.startdate }}</li>
+    <li>{{ entry.enddate }}</li>
 </ul>
 {% endfor %}
 

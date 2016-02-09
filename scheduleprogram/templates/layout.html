@@ -1,5 +1,7 @@
 <link rel="stylesheet" href="{{ url_for('static', filename = 'jquery-ui.min.css') }}">
 <script src="{{ url_for('static', filename = 'jquery-ui.min.js') }}"></script>
+{% block body %}
+{% endblock %}
 {% for message in get_flashed_messages() %}
     {{ message }}
 {% endfor %}

@@ -1,6 +1,29 @@
 {% extends "layout.html" %}
+<script>
+    $(function () {
+        $("#datepicker").datepicker();
+    });
+</script>
+{% block body %}
 <form method="POST" action="{{ url_for('cproject') }}">
     {{ form.csrf_token }}
     {{ form.name.label }} {{ form.name(size=20) }}
+    {% if form.name.errors %}
+        <ul>{% for error in form.name.errors %}
+            <li>{{ error }}</li>
+        {% endfor %}</ul>{% endif %}
+
+    {{ form.startdate.label }} {{ form.startdate }}
+    {% if form.startdate.errors %}
+        <ul>{% for error in form.startdate.errors %}
+            <li>{{ error }}</li>
+        {% endfor %}</ul>{% endif %}
+
+    {{ form.enddate.label }} {{ form.enddate }}
+    {% if form.enddate.errors %}
+        <ul>{% for error in form.enddate.errors %}
+            <li>{{ error }}</li>
+        {% endfor %}</ul>{% endif %}
     <input type="submit" value="Go">
 </form>
+{% endblock %}
