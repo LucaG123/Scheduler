@@ -1,11 +1,6 @@
 {% extends "layout.html" %}
-<script>
-    $(function () {
-        $("#datepicker").datepicker();
-    });
-</script>
 {% block body %}
-<h1>Test Page</h1>
+    <h1>Display Page</h1>
 {% for entry in output %}
     <li>{{ entry.project }}</li>
 <ul>
