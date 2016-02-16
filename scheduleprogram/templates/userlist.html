@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block body %}
+    <h1>User List</h1>
+    {% for entry in output %}
+        <li>{{ entry.user }}</li>
+        <ul>
+            <li>{{ entry.username }}</li>
+            <li>{{ entry.password }}</li>
+            <li>{{ entry.access }}</li>
+        </ul>
+    {% endfor %}
+{% endblock %}

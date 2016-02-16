@@ -1,6 +1,5 @@
 # all the imports
 from flask import Flask, render_template, flash, url_for, redirect
-
 # configuration
 from flask.ext.sqlalchemy import SQLAlchemy
 
@@ -41,9 +40,10 @@ class User(db.Model):
     password = db.Column(db.String(80))
     access = db.Column(db.Integer)
 
-    def __init__(self, username, access):
-        self.username
-        self.access
+    def __init__(self, username, access, password):
+        self.username = username
+        self.access = access
+        self.password = password
 
 
 class Project(db.Model):
@@ -68,7 +68,7 @@ class Modules(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     modulename = db.Column(db.String(80), unique=True)
     tasks = db.relationship("Tasks")
-    user_id = db.Column(db.String(80), db.ForeignKey('user.id)'))
+    # user_id = db.Column(db.String(80), db.ForeignKey('user.id)'))
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'))
 
     def __init__(self, modulename):
@@ -98,6 +98,12 @@ def homepage():
     return render_template('display.html', output=query)
 
 
+@app.route('/users')
+def listusers():
+    query = User.query.order_by(User.username)
+    return render_template('userlist.html', output=query)
+
+
 @app.route('/cproject', methods=['GET', 'POST'])
 def cproject():
     form = CreateProject()
@@ -113,7 +119,7 @@ def cproject():
     return render_template('cProject.html', form=form)
 
 
-@app.route('/addUser', methods=['GET', 'POST'])
+@app.route('/adduser', methods=['GET', 'POST'])
 def adduser():
     form = AddUser()
     if form.validate_on_submit():
@@ -123,6 +129,9 @@ def adduser():
         user = User(username, password, access)
         db.session.add(user)
         db.session.commit()
+        flash('Added User: ' + username)
+        return redirect(url_for('listusers'))
+    return render_template('addUser.html', form=form)
 
 
 if __name__ == '__main__':
