@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block head %}
+    {{ super() }}
+    <script>
+        $(function () {
+            $("#projects").tabs();
+        });
+    </script>
+{% endblock %}
+{% block body %}
+    <h1>Display Page</h1>
+
+    <div id="projects">
+        <ul>
+            {% for entry in output %}
+                <li><a href="#{{ entry.project }}">{{ entry.project }}</a></li>
+            {% endfor %}
+        </ul>
+        {% for entry in output %}
+            <div id="{{ entry.project }}">
+                <p>{{ entry.startdate }}</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

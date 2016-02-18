@@ -25,7 +25,11 @@ db = SQLAlchemy(app)
 class CreateProject(Form):
     name = StringField('Name of project:', validators=[DataRequired()])
     startdate = DateField('Starting date:', validators=[DataRequired()], format='%Y-%m-%d')
-    enddate = DateField('Ending date:', validators=[DataRequired()], format='%Y-%m-%d')
+
+
+class AddModule(Form):
+    user = StringField('Employee: ', validators=[DataRequired])
+    startdate = DateField('Starting date:', validators=[DataRequired()], format='%Y-%m-%d')
 
 
 class AddUser(Form):
@@ -51,14 +55,12 @@ class Project(db.Model):
     # username = db.Column(db.String(80), unique=True)
     project = db.Column(db.String(80), unique=True)
     startdate = db.Column(db.Date)
-    enddate = db.Column(db.Date)
     modules = db.relationship('Modules')
 
-    def __init__(self, project, startdate, enddate):
+    def __init__(self, project, startdate):
         # self.username = username
         self.project = project
         self.startdate = startdate
-        self.enddate = enddate
 
     def __repr__(self):
         return '<Project %r>' % self.project
@@ -79,6 +81,7 @@ class Tasks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     taskname = db.Column(db.String(120))
     duration = db.Column(db.Integer)
+    state = db.Column(db.Integer)
     modules_id = db.Column(db.Integer, db.ForeignKey('modules.id'))
 
 
@@ -89,13 +92,13 @@ def page():
     # db.session.add(project)
     # db.session.commit()
     query = Project.query.order_by(Project.project)
-    return render_template('display.html', output=query)
+    return render_template('projectlist.html', output=query)
 
 
 @app.route('/')
 def homepage():
     query = Project.query.order_by(Project.project)
-    return render_template('display.html', output=query)
+    return render_template('projectlist.html', output=query)
 
 
 @app.route('/users')
@@ -110,8 +113,7 @@ def cproject():
     if form.validate_on_submit():
         projectname = form.name.data
         startdate = form.startdate.data
-        enddate = form.enddate.data
-        project = Project(projectname, startdate, enddate)
+        project = Project(projectname, startdate)
         db.session.add(project)
         db.session.commit()
         flash('Project Created: ' + projectname)
