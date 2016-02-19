@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block head %}
+    {{ super() }}
+    <script>
+        $(function () {
+            $("#datepicker").datepicker({
+                dateFormat: "yy-mm-dd"
+            });
+        });
+    </script>
+{% endblock %}
+{% block body %}
+    <form method="POST" action="{{ url_for('addmodule') }}">
+        {{ form.csrf_token }}
+        {{ form.user_id.label }} {{ form.user_id(size=20) }}
+        {% if form.user_id.errors %}
+            <ul>{% for error in form.user_id.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}</ul>{% endif %}
+
+        {{ form.modname.label }} {{ form.modname(size=20) }}
+        {% if form.modname.errors %}
+            <ul>{% for error in form.modname.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}</ul>{% endif %}
+
+        {{ form.startdate.label }} {{ form.startdate(id='datepicker') }}
+        {% if form.startdate.errors %}
+            <ul>{% for error in form.startdate.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}</ul>{% endif %}
+
+        {{ form.projectID.label }} {{ form.projectID(size=2) }}
+        {% if form.projectID.errors %}
+            <ul>{% for error in form.projectID.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}</ul>{% endif %}
+        <input type="submit" value="Go">
+    </form>
+{% endblock %}

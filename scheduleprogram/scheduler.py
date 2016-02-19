@@ -28,8 +28,10 @@ class CreateProject(Form):
 
 
 class AddModule(Form):
-    user = StringField('Employee: ', validators=[DataRequired])
+    user_id = StringField('Employee ID: ', validators=[DataRequired])
+    modname = StringField('Module name: ', validators=[DataRequired])
     startdate = DateField('Starting date:', validators=[DataRequired()], format='%Y-%m-%d')
+    projectID = IntegerField('Project ID:', validators=[DataRequired()])
 
 
 class AddUser(Form):
@@ -68,13 +70,16 @@ class Project(db.Model):
 
 class Modules(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    modulename = db.Column(db.String(80), unique=True)
+    user_id = db.Column(db.String(80), db.ForeignKey('user.id)'))
+    modname = db.Column(db.String(80), unique=True)
     tasks = db.relationship("Tasks")
     # user_id = db.Column(db.String(80), db.ForeignKey('user.id)'))
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'))
+    startdate = db.Column(db.Date)
 
-    def __init__(self, modulename):
-        self.modulename = modulename
+    def __init__(self, modname, startdate):
+        self.modname = modname
+        self.startdate = startdate
 
 
 class Tasks(db.Model):
@@ -92,13 +97,13 @@ def page():
     # db.session.add(project)
     # db.session.commit()
     query = Project.query.order_by(Project.project)
-    return render_template('projectlist.html', output=query)
+    return render_template('display.html', output=query)
 
 
 @app.route('/')
 def homepage():
     query = Project.query.order_by(Project.project)
-    return render_template('projectlist.html', output=query)
+    return render_template('display.html', output=query)
 
 
 @app.route('/users')
@@ -119,6 +124,22 @@ def cproject():
         flash('Project Created: ' + projectname)
         return redirect(url_for('homepage'))
     return render_template('cProject.html', form=form)
+
+
+@app.route('/addmodule', methods=['GET', 'POST'])
+def addmodule():
+    form = AddModule()
+    if form.validate_on_submit():
+        user_id = form.user_id.data
+        modname = form.modname.data
+        startdate = form.startdate.data
+        projectid = form.projectID.data
+        module = Modules(user_id, modname, startdate, projectid)
+        db.session.add(module)
+        db.session.comit()
+        flash('Module Added' + module.modname)
+        return redirect(url_for('homepage'))
+    return render_template('addModule.html', form=form)
 
 
 @app.route('/adduser', methods=['GET', 'POST'])
