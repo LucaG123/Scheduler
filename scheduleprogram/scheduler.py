@@ -28,7 +28,7 @@ class CreateProject(Form):
 
 
 class AddModule(Form):
-    user_id = StringField('Employee ID: ', validators=[DataRequired])
+    user = StringField('Employee ID: ', validators=[DataRequired])
     modname = StringField('Module name: ', validators=[DataRequired])
     startdate = DateField('Starting date:', validators=[DataRequired()], format='%Y-%m-%d')
     projectID = IntegerField('Project ID:', validators=[DataRequired()])
@@ -57,7 +57,8 @@ class Project(db.Model):
     # username = db.Column(db.String(80), unique=True)
     project = db.Column(db.String(80), unique=True)
     startdate = db.Column(db.Date)
-    modules = db.relationship('Modules')
+
+    # modules = db.Column(db.String(80))
 
     def __init__(self, project, startdate):
         # self.username = username
@@ -70,16 +71,18 @@ class Project(db.Model):
 
 class Modules(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.String(80), db.ForeignKey('user.id)'))
+    user = db.Column(db.String(80))
     modname = db.Column(db.String(80), unique=True)
-    tasks = db.relationship("Tasks")
+    tasks = db.Column(db.String(80))
     # user_id = db.Column(db.String(80), db.ForeignKey('user.id)'))
-    project_id = db.Column(db.Integer, db.ForeignKey('project.id'))
+    project_id = db.Column(db.Integer)
     startdate = db.Column(db.Date)
 
-    def __init__(self, modname, startdate):
+    def __init__(self, user, modname, startdate, project_id):
+        self.user = user
         self.modname = modname
         self.startdate = startdate
+        self.project_id = project_id
 
 
 class Tasks(db.Model):
@@ -87,13 +90,13 @@ class Tasks(db.Model):
     taskname = db.Column(db.String(120))
     duration = db.Column(db.Integer)
     state = db.Column(db.Integer)
-    modules_id = db.Column(db.Integer, db.ForeignKey('modules.id'))
+    modules = db.Column(db.String(80))
 
 
 @app.route('/initdb')
 def page():
     db.create_all()
-    # project = Project('test project', date(2015, 11, 15), date(2016, 11, 16))
+    # project = Project('test project', date(2015, 11, 15))
     # db.session.add(project)
     # db.session.commit()
     query = Project.query.order_by(Project.project)
@@ -130,11 +133,11 @@ def cproject():
 def addmodule():
     form = AddModule()
     if form.validate_on_submit():
-        user_id = form.user_id.data
+        user = form.user.data
         modname = form.modname.data
         startdate = form.startdate.data
-        projectid = form.projectID.data
-        module = Modules(user_id, modname, startdate, projectid)
+        project_id = form.projectID.data
+        module = Modules(user, modname, startdate, project_id)
         db.session.add(module)
         db.session.comit()
         flash('Module Added' + module.modname)
