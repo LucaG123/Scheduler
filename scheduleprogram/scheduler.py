@@ -4,7 +4,7 @@ from flask import Flask, render_template, flash, url_for, redirect
 from flask.ext.sqlalchemy import SQLAlchemy
 
 from flask_wtf import Form
-from wtforms import StringField, DateField, PasswordField, IntegerField
+from wtforms import StringField, DateField, PasswordField, IntegerField, SelectField
 from wtforms.validators import DataRequired
 
 DATABASE = "database.db"
@@ -22,22 +22,26 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
 
 
+class CreateTask(Form):
+    task = StringField('Task:', validators=[DataRequired()])
+
+
 class CreateProject(Form):
     name = StringField('Name of project:', validators=[DataRequired()])
     startdate = DateField('Starting date:', validators=[DataRequired()], format='%Y-%m-%d')
 
 
 class AddModule(Form):
-    user = StringField('Employee ID: ', validators=[DataRequired])
-    modname = StringField('Module name: ', validators=[DataRequired])
+    user = SelectField('Employee: ', validators=[DataRequired()])
+    modname = StringField('Module name: ', validators=[DataRequired()])
     startdate = DateField('Starting date:', validators=[DataRequired()], format='%Y-%m-%d')
-    projectID = IntegerField('Project ID:', validators=[DataRequired()])
+    project = SelectField('Project:', coerce=int, validators=[DataRequired()])
 
 
 class AddUser(Form):
     username = StringField('Username:', validators=[DataRequired()])
     password = PasswordField('Password:', validators=[DataRequired()])
-    access = IntegerField('access: (1:not vision, 2:vision, 3:edit', validators=[DataRequired()])
+    access = IntegerField('Access: (1:not vision, 2:vision, 3:edit)', validators=[DataRequired()])
 
 
 class User(db.Model):
@@ -75,19 +79,19 @@ class Modules(db.Model):
     modname = db.Column(db.String(80), unique=True)
     tasks = db.Column(db.String(80))
     # user_id = db.Column(db.String(80), db.ForeignKey('user.id)'))
-    project_id = db.Column(db.Integer)
+    project = db.Column(db.String)
     startdate = db.Column(db.Date)
 
-    def __init__(self, user, modname, startdate, project_id):
+    def __init__(self, user, modname, startdate, project):
         self.user = user
         self.modname = modname
         self.startdate = startdate
-        self.project_id = project_id
+        self.project = project
 
 
 class Tasks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    taskname = db.Column(db.String(120))
+    task = db.Column(db.String(200))
     duration = db.Column(db.Integer)
     state = db.Column(db.Integer)
     modules = db.Column(db.String(80))
@@ -132,15 +136,17 @@ def cproject():
 @app.route('/addmodule', methods=['GET', 'POST'])
 def addmodule():
     form = AddModule()
+    form.user.choices = [(user.id, user.username) for user in User.query.all()]
+    form.project.choices = [(project.id, project.project) for project in Project.query.all()]
     if form.validate_on_submit():
         user = form.user.data
         modname = form.modname.data
         startdate = form.startdate.data
-        project_id = form.projectID.data
-        module = Modules(user, modname, startdate, project_id)
+        project = form.project.data
+        module = Modules(user, modname, startdate, project)
         db.session.add(module)
-        db.session.comit()
-        flash('Module Added' + module.modname)
+        db.session.commit()
+        flash('Added Module: ' + module.modname)
         return redirect(url_for('homepage'))
     return render_template('addModule.html', form=form)
 

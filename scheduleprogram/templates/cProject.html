@@ -12,7 +12,7 @@
 {% block body %}
 <form method="POST" action="{{ url_for('cproject') }}">
     {{ form.csrf_token }}
-    {{ form.name.label }} {{ form.name(size=20) }}
+    {{ form.name.label }} {{ form.name }}
     {% if form.name.errors %}
         <ul>{% for error in form.name.errors %}
             <li>{{ error }}</li>
