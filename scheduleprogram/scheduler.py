@@ -126,6 +126,7 @@ def cproject():
         projectname = form.name.data
         startdate = form.startdate.data
         project = Project(projectname, startdate)
+
         db.session.add(project)
         db.session.commit()
         flash('Project Created: ' + projectname)
