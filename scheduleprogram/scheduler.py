@@ -33,7 +33,7 @@ class CreateProject(Form):
 
 class AddModule(Form):
     user = SelectField('Employee: ', validators=[DataRequired()])
-    modname = StringField('Module name: ', validators=[DataRequired()])
+    name = StringField('Module name: ', validators=[DataRequired()])
     startdate = DateField('Starting date:', validators=[DataRequired()], format='%Y-%m-%d')
     project = SelectField('Project:', coerce=int, validators=[DataRequired()])
 
@@ -59,42 +59,41 @@ class User(db.Model):
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # username = db.Column(db.String(80), unique=True)
-    project = db.Column(db.String(80), unique=True)
+    name = db.Column(db.String(80), unique=True)
     startdate = db.Column(db.Date)
+    modules = db.relationship('Modules', backref='proj')
 
-    # modules = db.Column(db.String(80))
-
-    def __init__(self, project, startdate):
+    def __init__(self, name, startdate):
         # self.username = username
-        self.project = project
+        self.name = name
         self.startdate = startdate
 
     def __repr__(self):
-        return '<Project %r>' % self.project
+        return '<Project %r>' % self.name
 
 
 class Modules(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user = db.Column(db.String(80))
-    modname = db.Column(db.String(80), unique=True)
-    tasks = db.Column(db.String(80))
+    name = db.Column(db.String(80))
+    tasks = db.relationship('Tasks', backref='module')
     # user_id = db.Column(db.String(80), db.ForeignKey('user.id)'))
-    project = db.Column(db.String)
+    project = db.Column(db.Integer, db.ForeignKey('project.id'))
     startdate = db.Column(db.Date)
 
-    def __init__(self, user, modname, startdate, project):
+    def __init__(self, user, name, startdate, project):
         self.user = user
-        self.modname = modname
+        self.name = name
         self.startdate = startdate
         self.project = project
 
 
 class Tasks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    module_id = db.Column(db.Integer, db.ForeignKey('modules.id'))
     task = db.Column(db.String(200))
     duration = db.Column(db.Integer)
     state = db.Column(db.Integer)
-    modules = db.Column(db.String(80))
 
 
 @app.route('/initdb')
@@ -103,13 +102,13 @@ def page():
     # project = Project('test project', date(2015, 11, 15))
     # db.session.add(project)
     # db.session.commit()
-    query = Project.query.order_by(Project.project)
+    query = Project.query.order_by(Project.name)
     return render_template('display.html', output=query)
 
 
 @app.route('/')
 def homepage():
-    query = Project.query.order_by(Project.project)
+    query = Project.query.order_by(Project.name)
     return render_template('display.html', output=query)
 
 
@@ -126,7 +125,6 @@ def cproject():
         projectname = form.name.data
         startdate = form.startdate.data
         project = Project(projectname, startdate)
-
         db.session.add(project)
         db.session.commit()
         flash('Project Created: ' + projectname)
@@ -137,17 +135,17 @@ def cproject():
 @app.route('/addmodule', methods=['GET', 'POST'])
 def addmodule():
     form = AddModule()
-    form.user.choices = [(user.id, user.username) for user in User.query.all()]
-    form.project.choices = [(project.id, project.project) for project in Project.query.all()]
+    form.user.choices = [(user.username, user.username) for user in User.query.all()]
+    form.project.choices = [(project.id, project.name) for project in Project.query.all()]
     if form.validate_on_submit():
         user = form.user.data
-        modname = form.modname.data
+        name = form.name.data
         startdate = form.startdate.data
         project = form.project.data
-        module = Modules(user, modname, startdate, project)
+        module = Modules(user, name, startdate, project)
         db.session.add(module)
         db.session.commit()
-        flash('Added Module: ' + module.modname)
+        flash('Added Module: ' + module.name)
         return redirect(url_for('homepage'))
     return render_template('addModule.html', form=form)
 
