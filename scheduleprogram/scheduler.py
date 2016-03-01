@@ -177,7 +177,7 @@ def adduser():
 @app.route('/addtask', methods=['GET', 'POST'])
 def addtask():
     form = AddTask()
-    form.module_id.choices = [(Tasks.module_id, Modules.name)]
+    form.module_id.choices = [(Tasks.module_id, Tasks.name)]
     if form.validate_on_submit():
         task = Tasks(form.name.data)
         db.session.add(task)
