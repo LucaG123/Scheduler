@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block body %}
+    <form method="POST" action="{{ url_for('addtask') }}">
+        {{ form.csrf_token }}
+        {{ form.name.label }} {{ form.name }}
+        {% if form.name.errors %}
+            <ul>{% for error in form.name.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}</ul>{% endif %}
+
+        <input type="submit" value="Go">
+    </form>
+{% endblock %}

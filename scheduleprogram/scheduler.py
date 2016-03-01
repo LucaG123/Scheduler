@@ -22,11 +22,12 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
 
 
-class CreateTask(Form):
-    task = StringField('Task:', validators=[DataRequired()])
+class AddTask(Form):
+    name = StringField('Task:', validators=[DataRequired()])
+    module_id = SelectField('Module:', coerce=int, validators=[DataRequired()])
 
 
-class CreateProject(Form):
+class AddProject(Form):
     name = StringField('Name of project:', validators=[DataRequired()])
     startdate = DateField('Starting date:', validators=[DataRequired()], format='%Y-%m-%d')
 
@@ -91,9 +92,12 @@ class Modules(db.Model):
 class Tasks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     module_id = db.Column(db.Integer, db.ForeignKey('modules.id'))
-    task = db.Column(db.String(200))
-    duration = db.Column(db.Integer)
-    state = db.Column(db.Integer)
+    name = db.Column(db.String(200))
+    duration = db.Column(db.Integer, default=0)
+    state = db.Column(db.Integer, default=0)
+
+    def __init__(self, name):
+        self.name = name
 
 
 @app.route('/initdb')
@@ -102,7 +106,12 @@ def page():
     # project = Project('test project', date(2015, 11, 15))
     # db.session.add(project)
     # db.session.commit()
-    query = Project.query.order_by(Project.name)
+    query = Project.query.options(
+            db.subqueryload_all(
+                    Project.modules,
+                    Modules.tasks
+            )
+    ).all()
     return render_template('display.html', output=query)
 
 
@@ -120,14 +129,14 @@ def listusers():
 
 @app.route('/cproject', methods=['GET', 'POST'])
 def cproject():
-    form = CreateProject()
+    form = AddProject()
     if form.validate_on_submit():
         projectname = form.name.data
         startdate = form.startdate.data
         project = Project(projectname, startdate)
         db.session.add(project)
         db.session.commit()
-        flash('Project Created: ' + projectname)
+        flash('Project Added: ' + projectname)
         return redirect(url_for('homepage'))
     return render_template('cProject.html', form=form)
 
@@ -164,6 +173,23 @@ def adduser():
         return redirect(url_for('listusers'))
     return render_template('addUser.html', form=form)
 
+
+@app.route('/addtask', methods=['GET', 'POST'])
+def addtask():
+    form = AddTask()
+    form.module_id.choices = [(Tasks.module_id, Modules.name)]
+    if form.validate_on_submit():
+        task = Tasks(form.name.data)
+        db.session.add(task)
+        db.session.commit()
+        flash('Added Task: ' + form.name.data)
+        return redirect(url_for('homepage'))
+    return render_template('addTask.html', form=form)
+
+
+@app.route('/debug')
+def debugpage():
+    raise RuntimeError('This is intentional')
 
 if __name__ == '__main__':
     app.run()
