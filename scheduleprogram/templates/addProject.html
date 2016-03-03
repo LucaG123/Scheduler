@@ -10,7 +10,7 @@
     </script>
 {% endblock %}
 {% block body %}
-<form method="POST" action="{{ url_for('cproject') }}">
+    <form method="POST" action="{{ url_for('addproject') }}">
     {{ form.csrf_token }}
     {{ form.name.label }} {{ form.name }}
     {% if form.name.errors %}

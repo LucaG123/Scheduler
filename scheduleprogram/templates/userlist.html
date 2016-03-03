@@ -1,4 +1,12 @@
 {% extends "layout.html" %}
+{% block head %}
+    {{ super() }}
+    <script>
+        $(function () {
+            $("input[type=submit], a, button").button()
+        });
+    </script>
+{% endblock %}
 {% block body %}
     <h1>User List</h1>
     {% for entry in output %}
@@ -9,4 +17,5 @@
             <li>{{ entry.access }}</li>
         </ul>
     {% endfor %}
+    <a href="{{ url_for('homepage') }}">Schedule</a>
 {% endblock %}

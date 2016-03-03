@@ -8,22 +8,51 @@
     </script>
     <script>
         $(function () {
-            $("#modules").tabs();
+            $("input[type=submit], a, button").button()
         });
     </script>
 {% endblock %}
 {% block body %}
-    <h1>Display Page</h1>
-
+    <h1>Scheduler</h1>
+    <a href="{{ url_for('addproject') }}">Add Project</a>
+    <a href="{{ url_for('adduser') }}">Add User</a>
+    <a href="{{ url_for('addmodule') }}">Add Module</a>
+    <a href="{{ url_for('addtask') }}">Add Task</a>
     <div id="projects">
+
         <ul>
             {% for entry in output %}
-                <li><a href="#{{ entry.project }}">{{ entry.project }}</a></li>
+                <li><a href="#{{ entry.name }}">{{ entry.name }}</a></li>
             {% endfor %}
         </ul>
         {% for entry in output %}
-            <div id="{{ entry.project }}">
-                <p>{{ entry.startdate }}</p>
+            <div id="{{ entry.name }}">
+
+                <script>
+                    $(function () {
+                        $("#{{ entry.name }}").tabs();
+                    });
+                </script>
+                <div id="mod{{ entry.name }}">
+                    <ul>
+                        {% for module in entry.modules %}
+                            <li><a href="#{{ module.id }}">{{ module.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                    {% for module in entry.modules %}
+                        <div id="{{ module.id }}">
+                            <p>Module start date: {{ module.startdate }}</p>
+                            <p>Employee: {{ module.user }}</p>
+
+                            {% for task in module.tasks %}
+                                <p>{{ task.name }} duration: {{ task.duration }}</p>
+                                <button>Edit Status</button>
+                            {% endfor %}
+
+                        </div>
+                    {% endfor %}
+                    <p>Project start date: {{ entry.startdate }}</p>
+                </div>
             </div>
         {% endfor %}
     </div>

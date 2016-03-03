@@ -20,11 +20,13 @@ app.config.from_object(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
+move = 10
 
 
 class AddTask(Form):
     name = StringField('Task:', validators=[DataRequired()])
     module_id = SelectField('Module:', coerce=int, validators=[DataRequired()])
+    duration = IntegerField('Duration:', validators=[DataRequired()])
 
 
 class AddProject(Form):
@@ -96,8 +98,10 @@ class Tasks(db.Model):
     duration = db.Column(db.Integer, default=0)
     state = db.Column(db.Integer, default=0)
 
-    def __init__(self, name):
+    def __init__(self, name, module_id, duration):
         self.name = name
+        self.module_id = module_id
+        self.duration = duration
 
 
 @app.route('/initdb')
@@ -127,8 +131,8 @@ def listusers():
     return render_template('userlist.html', output=query)
 
 
-@app.route('/cproject', methods=['GET', 'POST'])
-def cproject():
+@app.route('/addproject', methods=['GET', 'POST'])
+def addproject():
     form = AddProject()
     if form.validate_on_submit():
         projectname = form.name.data
@@ -138,7 +142,7 @@ def cproject():
         db.session.commit()
         flash('Project Added: ' + projectname)
         return redirect(url_for('homepage'))
-    return render_template('cProject.html', form=form)
+    return render_template('addProject.html', form=form)
 
 
 @app.route('/addmodule', methods=['GET', 'POST'])
@@ -159,6 +163,10 @@ def addmodule():
     return render_template('addModule.html', form=form)
 
 
+# query = Model.query.filter_by(column="data").first()
+# query._columnthatyouaremodifying_ = "data"
+# db.session.add(query); db.session.commit()
+
 @app.route('/adduser', methods=['GET', 'POST'])
 def adduser():
     form = AddUser()
@@ -177,14 +185,22 @@ def adduser():
 @app.route('/addtask', methods=['GET', 'POST'])
 def addtask():
     form = AddTask()
-    form.module_id.choices = [(Tasks.module_id, Tasks.name)]
+    form.module_id.choices = [(module.id, module.name) for module in Modules.query.all()]
     if form.validate_on_submit():
-        task = Tasks(form.name.data)
+        module_id = form.module_id.data
+        dur = form.duration.data
+        name = form.name.data
+        task = Tasks(name, module_id, dur)
         db.session.add(task)
         db.session.commit()
         flash('Added Task: ' + form.name.data)
         return redirect(url_for('homepage'))
     return render_template('addTask.html', form=form)
+
+
+@app.route('/editTask', methods=['GET', 'POST'])
+def edittask():
+    form = edittask()
 
 
 @app.route('/debug')
