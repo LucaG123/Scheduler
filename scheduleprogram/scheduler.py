@@ -201,7 +201,13 @@ def addtask():
 @app.route('/editTask', methods=['GET', 'POST'])
 def edittask():
     form = edittask()
-
+    query = Tasks.query.filter_by(column="data").first()
+    query._columnthatyouaremodifying_ = "data"
+    db.session.add(query);
+    db.session.commit()
+    WORKING
+    ON
+    THIS!!!!
 
 @app.route('/debug')
 def debugpage():
