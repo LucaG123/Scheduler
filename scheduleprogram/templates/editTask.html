@@ -5,29 +5,23 @@
 {% block body %}
 <form method="POST" action="{{ url_for('edittask') }}">
     {{ form.csrf_token }}
-    {{ form.name.label }} {{ form.name }}
-    {% if form.name.errors %}
-    <ul>{% for error in form.name.errors %}
-        <li>{{ error }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-
-    {{ form.module_id.label }} {{ form.module_id }}
-    {% if form.module_id.errors %}
-    <ul>{% for error in form.module_id.errors %}
-        <li>{{ error }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-
     {{ form.duration.label }} {{ form.duration }}
     {% if form.duration.errors %}
-    <ul>{% for error in form.duration.errors %}
+        <ul>{% for error in form.duration.errors %}
         <li>{{ error }}</li>
         {% endfor %}
     </ul>
     {% endif %}
+
+    {{ form.state.label }} {{ form.state }}
+    {% if form.state.errors %}
+        <ul>{% for error in form.state.errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {{ form.task_id(value=task) }}
     <input type="submit" value="Go">
 </form>
 {% endblock %}

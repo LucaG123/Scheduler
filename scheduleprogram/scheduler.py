@@ -1,10 +1,10 @@
 # all the imports
-from flask import Flask, render_template, flash, url_for, redirect
+from flask import Flask, render_template, flash, url_for, redirect, request
 # configuration
 from flask.ext.sqlalchemy import SQLAlchemy
 
 from flask_wtf import Form
-from wtforms import StringField, DateField, PasswordField, IntegerField, SelectField
+from wtforms import StringField, DateField, PasswordField, IntegerField, SelectField, HiddenField
 from wtforms.validators import DataRequired
 
 DATABASE = "database.db"
@@ -22,6 +22,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
 move = 10
 
+
+class EditTask(Form):
+    duration = IntegerField('Duration:', validators=[DataRequired()])
+    state = IntegerField('State:', validators=[DataRequired()])
+    task_id = HiddenField('Task ID', validators=[DataRequired()])
 
 class AddTask(Form):
     name = StringField('Task:', validators=[DataRequired()])
@@ -200,16 +205,26 @@ def addtask():
 
 @app.route('/editTask', methods=['GET', 'POST'])
 def edittask():
-    form = edittask()
-    Tasks.query.filter_by(colummn_name=criteria).first()
-    # take note that this is only for the first match where the value of
-    # column_name = criteria and will not work with for statements. To get lla the cases where column_name = criteria
-    # use .all() instead of .first() but you will need a for statement to get the invididual datebase rows
-    query.different_column_name = value
-    # this updates the value of the column different_column_name
+    if request.args.get('task') is not None:
+        form = EditTask()
+        task = request.args.get('task')
+        if form.validate_on_submit():
+            query = Tasks.query.filter_by(id=form.task_id.data).first()
+            # take note that this is only for the first match where the value of
+            # column_name = criteria and will not work with for statements. To get lla the cases where column_name = criteria
+            # use .all() instead of .first() but you will need a for statement to get the invididual datebase rows
+            query.duration = form.duration.data
+            query.state = form.state.data
+            # this updates the value of the column different_column_name
 
-    db.session.add(query)
-    db.session.commit()
+            db.session.add(query)
+            db.session.commit()
+            # flash sucsess message
+            return redirect(url_for('homepage'))
+            # return template editTask passing form and task
+    else:
+        flash('No task to edit')
+        return redirect(url_for('homepage'))
 
 
 @app.route('/debug')
