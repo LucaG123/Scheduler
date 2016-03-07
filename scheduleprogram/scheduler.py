@@ -201,13 +201,16 @@ def addtask():
 @app.route('/editTask', methods=['GET', 'POST'])
 def edittask():
     form = edittask()
-    query = Tasks.query.filter_by(column="data").first()
-    query._columnthatyouaremodifying_ = "data"
-    db.session.add(query);
+    Tasks.query.filter_by(colummn_name=criteria).first()
+    # take note that this is only for the first match where the value of
+    # column_name = criteria and will not work with for statements. To get lla the cases where column_name = criteria
+    # use .all() instead of .first() but you will need a for statement to get the invididual datebase rows
+    query.different_column_name = value
+    # this updates the value of the column different_column_name
+
+    db.session.add(query)
     db.session.commit()
-    WORKING
-    ON
-    THIS!!!!
+
 
 @app.route('/debug')
 def debugpage():

@@ -46,7 +46,7 @@
 
                             {% for task in module.tasks %}
                                 <p>{{ task.name }} duration: {{ task.duration }}</p>
-                                <button>Edit Status</button>
+                            <a href="{{ url_for('edittask') }}">Edit Task</a>
                             {% endfor %}
 
                         </div>
