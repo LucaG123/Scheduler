@@ -1,11 +1,12 @@
 # all the imports
 from flask import Flask, render_template, flash, url_for, redirect, request
+# imports the library for connecting Python to SQLite
 # configuration
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.sqlalchemy import SQLAlchemy  # library to more easily manipulate database
 
 from flask_wtf import Form
 from wtforms import StringField, DateField, PasswordField, IntegerField, SelectField, HiddenField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired  # imports different kinds of form fields
 
 DATABASE = "database.db"
 DEBUG = True
@@ -13,66 +14,76 @@ SECRET_KEY = 'development key'
 USERNAME = 'admin'
 PASSWORD = 'default'
 
-# create our little application :)
+# creates the application
 app = Flask(__name__)
 app.config.from_object(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'  # sets the database location when created
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-db = SQLAlchemy(app)
-move = 10
+db = SQLAlchemy(app)  # the kind of database
 
 
-class EditTask(Form):
+class EditTask(Form):  # create the form for Edit Task button
+    name = StringField('Rename:', validators=[DataRequired()])
+    """ the columns in the data base being commited when respective form is submitted. StringField
+    only accepts a String and so on for other variable types like Integer and Date """
+
     duration = IntegerField('Duration:', validators=[DataRequired()])
     state = IntegerField('State:', validators=[DataRequired()])
-    task_id = HiddenField('Task ID', validators=[DataRequired()])
+    task_id = HiddenField('Task ID',
+                          validators=[DataRequired()])  # HiddenField doesn't show a field on the form; it has
+    # to be filled by other means
+    """ validators checks to make sure the user put
+    the correct date type in the field in the form"""
 
-class AddTask(Form):
+
+class AddTask(Form):  # create the form for Add Task button
     name = StringField('Task:', validators=[DataRequired()])
     module_id = SelectField('Module:', coerce=int, validators=[DataRequired()])
     duration = IntegerField('Duration:', validators=[DataRequired()])
 
 
-class AddProject(Form):
+class AddProject(Form):  # create the form for Add Project button
     name = StringField('Name of project:', validators=[DataRequired()])
     startdate = DateField('Starting date:', validators=[DataRequired()], format='%Y-%m-%d')
 
 
-class AddModule(Form):
+class AddModule(Form):  # create the form for Add Module button
     user = SelectField('Employee: ', validators=[DataRequired()])
     name = StringField('Module name: ', validators=[DataRequired()])
     startdate = DateField('Starting date:', validators=[DataRequired()], format='%Y-%m-%d')
     project = SelectField('Project:', coerce=int, validators=[DataRequired()])
 
 
-class AddUser(Form):
+class AddUser(Form):  # create the form for Add User button
     username = StringField('Username:', validators=[DataRequired()])
     password = PasswordField('Password:', validators=[DataRequired()])
     access = IntegerField('Access: (1:not vision, 2:vision, 3:edit)', validators=[DataRequired()])
 
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+class User(db.Model):  # creates the user database
+    id = db.Column(db.Integer, primary_key=True)  # creates a column in the database.
+    """Primary_key creates a unique ID for each item in the database. In this context, it is used
+    to order them when creating lists"""
     username = db.Column(db.String(40), unique=True)
+    """unique prevents the database from adding two items in the database with the same name.
+    In this contest, it prevents multiple users to have the same name"""
     password = db.Column(db.String(80))
-    access = db.Column(db.Integer)
+    access = db.Column(db.Integer)  # determines what is visible to the user
 
-    def __init__(self, username, access, password):
+    def __init__(self, username, access, password):  # initializes the database.
         self.username = username
         self.access = access
         self.password = password
 
 
-class Project(db.Model):
+class Project(db.Model):  # creates the project database
     id = db.Column(db.Integer, primary_key=True)
-    # username = db.Column(db.String(80), unique=True)
     name = db.Column(db.String(80), unique=True)
     startdate = db.Column(db.Date)
-    modules = db.relationship('Modules', backref='proj')
+    modules = db.relationship('Modules', backref='proj')  # creates a relationship between Project and Modules
 
     def __init__(self, name, startdate):
-        # self.username = username
         self.name = name
         self.startdate = startdate
 
@@ -80,7 +91,7 @@ class Project(db.Model):
         return '<Project %r>' % self.name
 
 
-class Modules(db.Model):
+class Modules(db.Model):  # creates the module database
     id = db.Column(db.Integer, primary_key=True)
     user = db.Column(db.String(80))
     name = db.Column(db.String(80))
@@ -96,7 +107,7 @@ class Modules(db.Model):
         self.project = project
 
 
-class Tasks(db.Model):
+class Tasks(db.Model):  # creates the task database
     id = db.Column(db.Integer, primary_key=True)
     module_id = db.Column(db.Integer, db.ForeignKey('modules.id'))
     name = db.Column(db.String(200))
@@ -205,23 +216,29 @@ def addtask():
 
 @app.route('/editTask', methods=['GET', 'POST'])
 def edittask():
-    if request.args.get('task') is not None:
+    task = request.args.get('task')
+
+    if True:
         form = EditTask()
+        # flash('test')
+        flash(form.task_id.data)
         task = request.args.get('task')
         if form.validate_on_submit():
+            flash('test')
             query = Tasks.query.filter_by(id=form.task_id.data).first()
             # take note that this is only for the first match where the value of
-            # column_name = criteria and will not work with for statements. To get lla the cases where column_name = criteria
+            # column_name = criteria and will not work with for statements
+            # To get all the cases where column_name = criteria
             # use .all() instead of .first() but you will need a for statement to get the invididual datebase rows
+            query.name = form.name.data
             query.duration = form.duration.data
             query.state = form.state.data
             # this updates the value of the column different_column_name
-
             db.session.add(query)
             db.session.commit()
-            # flash sucsess message
+            flash('Task edit successful')
             return redirect(url_for('homepage'))
-            # return template editTask passing form and task
+        return render_template('editTask.html', form=form)
     else:
         flash('No task to edit')
         return redirect(url_for('homepage'))
