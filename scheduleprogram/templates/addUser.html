@@ -1,4 +1,12 @@
 {% extends "layout.html" %}
+{% block head %}
+{{ super() }}
+<script>
+    $(function () {
+        $("input[type=submit], a, button").button()
+    });
+</script>
+{% endblock %}
 {% block body %}
     <form method="POST" action="{{ url_for('adduser') }}">
         {{ form.csrf_token }}
@@ -19,6 +27,7 @@
             <ul>{% for error in form.access.errors %}
                 <li>{{ error }}</li>
             {% endfor %}</ul>{% endif %}
+        <a href="{{ url_for('homepage') }}">Cancel</a>
         <input type="submit" value="Go">
     </form>
 {% endblock %}

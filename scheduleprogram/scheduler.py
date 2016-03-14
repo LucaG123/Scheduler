@@ -30,9 +30,8 @@ class EditTask(Form):  # create the form for Edit Task button
 
     duration = IntegerField('Duration:', validators=[DataRequired()])
     state = IntegerField('State:', validators=[DataRequired()])
-    task_id = HiddenField('Task ID',
-                          validators=[DataRequired()])  # HiddenField doesn't show a field on the form; it has
-    # to be filled by other means
+    task_id = HiddenField('Task ID', validators=[DataRequired()])  # HiddenField doesn't show a field on the form;
+    #  it has to be filled by other means
     """ validators checks to make sure the user put
     the correct date type in the field in the form"""
 
@@ -137,6 +136,7 @@ def page():
 
 @app.route('/')
 def homepage():
+
     query = Project.query.order_by(Project.name)
     return render_template('display.html', output=query)
 
@@ -190,7 +190,7 @@ def adduser():
         username = form.username.data
         password = form.password.data
         access = form.access.data
-        user = User(username, password, access)
+        user = User(username, access, password)
         db.session.add(user)
         db.session.commit()
         flash('Added User: ' + username)
@@ -218,7 +218,7 @@ def addtask():
 def edittask():
     task = request.args.get('task')
 
-    if True:
+    if request.args.get('task'):
         form = EditTask()
         # flash('test')
         flash(form.task_id.data)

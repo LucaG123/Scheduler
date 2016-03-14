@@ -1,6 +1,11 @@
 {% extends "layout.html" %}
 {% block head %}
 {{ super() }}
+<script>
+    $(function () {
+        $("input[type=submit], a, button").button()
+    });
+</script>
 {% endblock %}
 {% block body %}
 <form method="POST" action="{{ url_for('edittask') }}">
@@ -28,7 +33,7 @@
     {% endif %}
 
     {{ form.task_id(value=task_id) }}
-
+    <a href="{{ url_for('homepage') }}">Cancel</a>
     <input type="submit" value="Go">
 </form>
 {% endblock %}
