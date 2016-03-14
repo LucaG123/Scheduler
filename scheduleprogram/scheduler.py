@@ -9,7 +9,7 @@ from wtforms import StringField, DateField, PasswordField, IntegerField, SelectF
 from wtforms.validators import DataRequired  # imports different kinds of form fields
 
 DATABASE = "database.db"
-DEBUG = False
+DEBUG = True
 SECRET_KEY = 'development key'
 USERNAME = 'admin'
 PASSWORD = 'default'
@@ -20,20 +20,19 @@ app.config.from_object(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'  # sets the database location when created
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-db = SQLAlchemy(app)  # the kind of database
+db = SQLAlchemy(app)  # init the database
 
 
 class EditTask(Form):  # create the form for Edit Task button
     name = StringField('Rename:')
-    """ the columns in the data base being commited when respective form is submitted. StringField
-    only accepts a String and so on for other variable types like Integer and Date """
-
+    # the columns in the data base being commited when respective form is submitted. StringField
+    # only accepts a String and so on for other variable types like Integer and Date
     duration = IntegerField('Duration:')
     state = IntegerField('State:')
     task_id = HiddenField('Task ID')  # HiddenField doesn't show a field on the form;
     #  it has to be filled by other means
-    """ validators checks to make sure the user put
-    the correct date type in the field in the form"""
+    # validators checks to make sure the user put
+    # the correct date type in the field in the form
 
 
 class AddTask(Form):  # create the form for Add Task button
@@ -217,32 +216,23 @@ def addtask():
 @app.route('/editTask', methods=['GET', 'POST'])
 def edittask():
     form = EditTask()
-    flash(request.args.get('task'))
-    task = request.args.get('task')
-    if request.args.get('task'):
-        # flash('test')
+    if form.validate_on_submit():
+        flash('Task Edited')
+        query = Tasks.query.filter_by(id=int(form.task_id.data)).first()
+        query.name = form.name.data
+        query.duration = form.duration.data
+        query.state = form.state.data
+        db.session.add(query)
+        db.session.commit()
+        return redirect(url_for('homepage'))
+    elif request.args.get('task'):
         form.task_id.data = request.args.get('task')
-        flash(form.validate_on_submit())
-        task = request.args.get('task')
-        if form.validate_on_submit():
-            flash('test')
-            query = Tasks.query.filter_by(id=form.task_id.data).first()
-            # take note that this is only for the first match where the value of
-            # column_name = criteria and will not work with for statements
-            # To get all the cases where column_name = criteria
-            # use .all() instead of .first() but you will need a for statement to get the invididual datebase rows
-            query.name = form.name.data
-            query.duration = form.duration.data
-            query.state = form.state.data
-            # this updates the value of the column different_column_name
-            db.session.add(query)
-            db.session.commit()
-            flash('Task edit successful')
-            return redirect(url_for('homepage'))
         return render_template('editTask.html', form=form)
     else:
+        for error in form.errors:
+            flash('Field not filled out: ' + error)
         flash('No task to edit')
         return redirect(url_for('homepage'))
 
 if __name__ == '__main__':
-    app.run()
+    app.run(None, 8001)
