@@ -9,7 +9,7 @@ from wtforms import StringField, DateField, PasswordField, IntegerField, SelectF
 from wtforms.validators import DataRequired  # imports different kinds of form fields
 
 DATABASE = "database.db"
-DEBUG = True
+DEBUG = False
 SECRET_KEY = 'development key'
 USERNAME = 'admin'
 PASSWORD = 'default'
