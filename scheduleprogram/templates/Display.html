@@ -46,7 +46,7 @@
                             <p>Employee: {{ module.user }}</p>
                             <p>Tasks</p>
                             {% for task in module.tasks %}
-                                <p>{{ task.name }} duration: {{ task.duration }}</p>
+                            <p>{{ task.name }} duration: {{ task.duration }} days</p>
                             <p>state: {{ task.state }}</p>
                                 <a href="{{ url_for('edittask', task=task.id) }}">Edit Task</a>
                             {% endfor %}
