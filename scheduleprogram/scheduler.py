@@ -141,10 +141,10 @@ def homepage():
     return render_template('display.html', output=query)
 
 
-@app.route('/users')
+'''@app.route('/users')
 def listusers():
     query = User.query.order_by(User.username)
-    return render_template('userlist.html', output=query)
+    return render_template('userlist.html', output=query)'''
 
 
 @app.route('/addproject', methods=['GET', 'POST'])
@@ -194,7 +194,7 @@ def adduser():
         db.session.add(user)
         db.session.commit()
         flash('Added User: ' + username)
-        return redirect(url_for('listusers'))
+        return redirect(url_for('homepage'))
     return render_template('addUser.html', form=form)
 
 
@@ -243,11 +243,6 @@ def edittask():
     else:
         flash('No task to edit')
         return redirect(url_for('homepage'))
-
-
-@app.route('/debug')
-def debugpage():
-    raise RuntimeError('This is intentional')
 
 if __name__ == '__main__':
     app.run()
