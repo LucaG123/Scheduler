@@ -32,7 +32,7 @@
     </ul>
     {% endif %}
 
-    {{ form.task_id(value=task_id) }}
+    {{ form.task_id(value=request.args.get('task')) }}
     <a href="{{ url_for('homepage') }}">Cancel</a>
     <input type="submit" value="Go">
 </form>

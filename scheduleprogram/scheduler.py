@@ -24,13 +24,13 @@ db = SQLAlchemy(app)  # the kind of database
 
 
 class EditTask(Form):  # create the form for Edit Task button
-    name = StringField('Rename:', validators=[DataRequired()])
+    name = StringField('Rename:')
     """ the columns in the data base being commited when respective form is submitted. StringField
     only accepts a String and so on for other variable types like Integer and Date """
 
-    duration = IntegerField('Duration:', validators=[DataRequired()])
-    state = IntegerField('State:', validators=[DataRequired()])
-    task_id = HiddenField('Task ID', validators=[DataRequired()])  # HiddenField doesn't show a field on the form;
+    duration = IntegerField('Duration:')
+    state = IntegerField('State:')
+    task_id = HiddenField('Task ID')  # HiddenField doesn't show a field on the form;
     #  it has to be filled by other means
     """ validators checks to make sure the user put
     the correct date type in the field in the form"""
@@ -119,7 +119,7 @@ class Tasks(db.Model):  # creates the task database
         self.duration = duration
 
 
-@app.route('/initdb')
+@app.route('/')
 def page():
     db.create_all()
     # project = Project('test project', date(2015, 11, 15))
@@ -134,7 +134,7 @@ def page():
     return render_template('display.html', output=query)
 
 
-@app.route('/')
+@app.route('/display')
 def homepage():
 
     query = Project.query.order_by(Project.name)
@@ -216,12 +216,13 @@ def addtask():
 
 @app.route('/editTask', methods=['GET', 'POST'])
 def edittask():
+    form = EditTask()
+    flash(request.args.get('task'))
     task = request.args.get('task')
-
     if request.args.get('task'):
-        form = EditTask()
         # flash('test')
-        flash(form.task_id.data)
+        form.task_id.data = request.args.get('task')
+        flash(form.validate_on_submit())
         task = request.args.get('task')
         if form.validate_on_submit():
             flash('test')
