@@ -1,4 +1,6 @@
 # all the imports
+import datetime
+
 from flask import Flask, render_template, flash, url_for, redirect, request
 # imports the library for connecting Python to SQLite
 # configuration
@@ -109,13 +111,13 @@ class Tasks(db.Model):  # creates the task database
     id = db.Column(db.Integer, primary_key=True)
     module_id = db.Column(db.Integer, db.ForeignKey('modules.id'))
     name = db.Column(db.String(200))
-    duration = db.Column(db.Integer, default=0)
+    end_date = db.Column(db.Date, default=0)
     state = db.Column(db.Integer, default=0)
 
-    def __init__(self, name, module_id, duration):
+    def __init__(self, name, module_id, end_date):
         self.name = name
         self.module_id = module_id
-        self.duration = duration
+        self.end_date = end_date
 
 
 @app.route('/')
@@ -203,9 +205,9 @@ def addtask():
     form.module_id.choices = [(module.id, module.name) for module in Modules.query.all()]
     if form.validate_on_submit():
         module_id = form.module_id.data
-        dur = form.duration.data
+        end_date = datetime.datetime.today() + datetime.timedelta(days=int(form.duration.data))
         name = form.name.data
-        task = Tasks(name, module_id, dur)
+        task = Tasks(name, module_id, end_date)
         db.session.add(task)
         db.session.commit()
         flash('Added Task: ' + form.name.data)

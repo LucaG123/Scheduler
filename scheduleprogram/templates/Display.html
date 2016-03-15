@@ -8,17 +8,18 @@
     </script>
     <script>
         $(function () {
-            $("input[type=submit], a, button").button()
+            $("input[type=submit], .button").button()
         });
     </script>
 {% endblock %}
 {% block body %}
     <h1>Scheduler</h1>
 
-<a href="{{ url_for('addproject') }}">Add Project</a>
-<a href="{{ url_for('adduser') }}">Add User</a>
-<a href="{{ url_for('addmodule') }}">Add Module</a>
-<a href="{{ url_for('addtask') }}">Add Task</a>
+    <a class="button" href="{{ url_for('addproject') }}">Add Project</a>
+    <a class="button" href="{{ url_for('adduser') }}">Add User</a>
+    <a class="button" href="{{ url_for('addmodule') }}">Add Module</a>
+    <a class="button" href="{{ url_for('addtask') }}">Add Task</a>
+    <h1>Projects</h1>
     <div id="projects">
 
         <ul>
@@ -26,6 +27,9 @@
                 <li><a href="#{{ entry.name }}">{{ entry.name }}</a></li>
             {% endfor %}
         </ul>
+        {% if not output %}
+            <p>No projects</p>
+        {% endif %}
         {% for entry in output %}
             <div id="{{ entry.name }}">
 
@@ -34,26 +38,36 @@
                         $("#{{ entry.name }}").tabs();
                     });
                 </script>
-                <div id="mod{{ entry.name }}">
+                <p>Project start date: {{ entry.startdate }}</p>
+                <h2>Modules</h2>
+                <div id="mod{{ entry.name }}" style="background:rgb(245,245,245)">
                     <ul>
                         {% for module in entry.modules %}
                             <li><a href="#{{ module.id }}">{{ module.name }}</a></li>
                         {% endfor %}
                     </ul>
+                    {% if not entry.modules %}
+                        <p>No modules</p>
+                    {% endif %}
                     {% for module in entry.modules %}
                         <div id="{{ module.id }}">
                             <p>Module start date: {{ module.startdate }}</p>
                             <p>Employee: {{ module.user }}</p>
-                            <p>Tasks</p>
+                            <h3>Tasks</h3>
+                            {% if not module.tasks %}
+                                <p>No tasks</p>
+                            {% endif %}
                             {% for task in module.tasks %}
-                            <p>{{ task.name }} duration: {{ task.duration }}</p>
-                            <p>state: {{ task.state }}</p>
+                                <div style="background:#ddd; padding:16px; margin:16px 0; border-radius: 4px">
+                                    <p><b>{{ task.name }}</b></p>
+                                    <p>End date: {{ task.end_date }}</p>
+                                    <p>state: {{ task.state }}</p>
                                 <a href="{{ url_for('edittask', task=task.id) }}">Edit Task</a>
+                                </div>
                             {% endfor %}
 
                         </div>
                     {% endfor %}
-                    <p>Project start date: {{ entry.startdate }}</p>
                 </div>
             </div>
         {% endfor %}
