@@ -63,9 +63,18 @@
                             </script>
                             {% for task in module.tasks %}
                             {% if task.state == 1 %}
-                            <script> progInc += 1</script>
+                            <script>progInc += {
+                            {
+                                task.duration
+                            };
+                            }</script>
+
                             {% endif %}
-                            <script> progWhole += 1</script>
+                            <script> progWhole += {
+                            {
+                                task.duration
+                            };
+                            }</script>
                             {% endfor %}
                             <script> progWhole = (progInc / progWhole) * 100</script>
                             <script>
@@ -75,12 +84,14 @@
                                     });
                                 });
                             </script>
+
                             <div id="progressbar"></div>
 
                             {% for task in module.tasks %}
-                                <div style="background:#ddd; padding:16px; margin:16px 0; border-radius: 4px">
+
+                            <div style="background:#ddd; padding:16px; margin:16px 0; border-radius: 4px">
                                     <p><b>{{ task.name }}</b></p>
-                                    <p>Duration: {{task.end_date - module.startdate }}</p>
+                                <p>Duration: {{task.duration }} Day(s)</p>
                                     <p>End date: {{ task.end_date }}</p>
                                     <p>state: {{ task.state }}</p>
                                     <a class="button" href="{{ url_for('edittask', task=task.id) }}">Edit Task</a>

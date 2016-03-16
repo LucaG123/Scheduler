@@ -31,7 +31,8 @@ class EditTask(Form):  # create the form for Edit Task button
     # only accepts a String and so on for other variable types like Integer and Date
     duration = IntegerField('Duration (Days):')
     state = IntegerField('State (0= Incomplete, 1= Complete:')
-    task_id = HiddenField('Task ID')  # HiddenField doesn't show a field on the form;
+    task_id = HiddenField('Task ID')
+    # module_id = HiddenField('Mod ID') # HiddenField doesn't show a field on the form;
     #  it has to be filled by other means
     # validators checks to make sure the user put
     # the correct date type in the field in the form
@@ -63,11 +64,11 @@ class AddUser(Form):  # create the form for Add User button
 
 class User(db.Model):  # creates the user database
     id = db.Column(db.Integer, primary_key=True)  # creates a column in the database.
-    """Primary_key creates a unique ID for each item in the database. In this context, it is used
-    to order them when creating lists"""
+    # Primary_key creates a unique ID for each item in the database. In this context, it is used
+    # to order them when creating lists
     username = db.Column(db.String(40), unique=True)
-    """unique prevents the database from adding two items in the database with the same name.
-    In this contest, it prevents multiple users to have the same name"""
+    # unique prevents the database from adding two items in the database with the same name.
+    # In this contest, it prevents multiple users to have the same name"""
     password = db.Column(db.String(80))
     access = db.Column(db.Integer)  # determines what is visible to the user
 
@@ -112,17 +113,18 @@ class Tasks(db.Model):  # creates the task database
     module_id = db.Column(db.Integer, db.ForeignKey('modules.id'))
     name = db.Column(db.String(200))
     end_date = db.Column(db.Date, default=0)
+    duration = db.Column(db.Integer)
     state = db.Column(db.Integer, default=0)
 
-    def __init__(self, name, module_id, end_date):
+    def __init__(self, name, module_id, end_date, duration):
         self.name = name
         self.module_id = module_id
         self.end_date = end_date
+        self.duration = duration
 
 
 @app.route('/')
 def page():
-    progbar = 60
     db.create_all()
     # project = Project('test project', date(2015, 11, 15))
     # db.session.add(project)
@@ -206,9 +208,13 @@ def addtask():
     form.module_id.choices = [(module.id, module.name) for module in Modules.query.all()]
     if form.validate_on_submit():
         module_id = form.module_id.data
-        end_date = datetime.datetime.today() + datetime.timedelta(days=int(form.duration.data))
+        inc = int(0)
+        for task in module.tasks:
+            inc += int(task.duration)
+            flash('test')
+        end_date = datetime.datetime.today() + datetime.timedelta(days=int(inc + form.duration.data))
         name = form.name.data
-        task = Tasks(name, module_id, end_date)
+        task = Tasks(name, module_id, end_date, form.duration.data)
         db.session.add(task)
         db.session.commit()
         flash('Added Task: ' + form.name.data)
@@ -224,8 +230,14 @@ def edittask():
         query = Tasks.query.filter_by(id=int(form.task_id.data)).first()
         query.name = form.name.data
         flash(form.state.data)
-        query.end_date = form.duration.data
+        inc = int(0)
+        '''for task in module.tasks:
+            inc += int(task.duration)
+            flash('test')
+        end_date = datetime.datetime.today() + datetime.timedelta(days=int(inc+form.duration.data))'''
+        query.end_date = datetime.datetime.today() + datetime.timedelta(days=int(form.duration.data))
         query.state = form.state.data
+        query.duration = form.duration.data
         db.session.add(query)
         db.session.commit()
         return redirect(url_for('homepage'))
