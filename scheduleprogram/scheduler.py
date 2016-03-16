@@ -29,8 +29,8 @@ class EditTask(Form):  # create the form for Edit Task button
     name = StringField('Rename:')
     # the columns in the data base being commited when respective form is submitted. StringField
     # only accepts a String and so on for other variable types like Integer and Date
-    duration = IntegerField('Duration:')
-    state = IntegerField('State:')
+    duration = IntegerField('Duration (Days):')
+    state = IntegerField('State (0= Incomplete, 1= Complete:')
     task_id = HiddenField('Task ID')  # HiddenField doesn't show a field on the form;
     #  it has to be filled by other means
     # validators checks to make sure the user put
@@ -40,7 +40,7 @@ class EditTask(Form):  # create the form for Edit Task button
 class AddTask(Form):  # create the form for Add Task button
     name = StringField('Task:', validators=[DataRequired()])
     module_id = SelectField('Module:', coerce=int, validators=[DataRequired()])
-    duration = IntegerField('Duration:', validators=[DataRequired()])
+    duration = IntegerField('Duration (Days) :', validators=[DataRequired()])
 
 
 class AddProject(Form):  # create the form for Add Project button
@@ -122,6 +122,7 @@ class Tasks(db.Model):  # creates the task database
 
 @app.route('/')
 def page():
+    progbar = 60
     db.create_all()
     # project = Project('test project', date(2015, 11, 15))
     # db.session.add(project)
@@ -222,7 +223,8 @@ def edittask():
         flash('Task Edited')
         query = Tasks.query.filter_by(id=int(form.task_id.data)).first()
         query.name = form.name.data
-        query.duration = form.duration.data
+        flash(form.state.data)
+        query.end_date = form.duration.data
         query.state = form.state.data
         db.session.add(query)
         db.session.commit()
@@ -233,7 +235,7 @@ def edittask():
     else:
         for error in form.errors:
             flash('Field not filled out: ' + error)
-        flash('No task to edit')
+        flash('Task Not Updated')
         return redirect(url_for('homepage'))
 
 if __name__ == '__main__':
