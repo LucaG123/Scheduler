@@ -16,13 +16,13 @@
             <li>{{ error }}</li>
         {% endfor %}</ul>{% endif %}
 
-    {{ form.duration.label }} {{ form.duration }}
+    <!--{{ form.duration.label }} {{ form.duration }}
     {% if form.duration.errors %}
         <ul>{% for error in form.duration.errors %}
             <li>{{ error }}</li>
         {% endfor %}
     </ul>
-    {% endif %}
+    {% endif %}-->
 
     {{ form.state.label }} {{ form.state }}
     {% if form.state.errors %}
@@ -33,6 +33,7 @@
     {% endif %}
 
     {{ form.task_id }}
+    {{ form.module_id}}
     <a href="{{ url_for('homepage') }}">Cancel</a>
     <input type="submit" value="Go">
 </form>

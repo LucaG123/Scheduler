@@ -230,14 +230,14 @@ def edittask():
         query = Tasks.query.filter_by(id=int(form.task_id.data)).first()
         query.name = form.name.data
         flash(form.state.data)
-        inc = int(0)
-        '''for task in module.tasks:
+        '''inc = int(0)
+        for task in module.tasks:
             inc += int(task.duration)
             flash('test')
         end_date = datetime.datetime.today() + datetime.timedelta(days=int(inc+form.duration.data))'''
-        query.end_date = datetime.datetime.today() + datetime.timedelta(days=int(form.duration.data))
+        # query.end_date = datetime.datetime.today() + datetime.timedelta(days=int(form.duration.data))
         query.state = form.state.data
-        query.duration = form.duration.data
+        # query.duration = form.duration.data
         db.session.add(query)
         db.session.commit()
         return redirect(url_for('homepage'))
